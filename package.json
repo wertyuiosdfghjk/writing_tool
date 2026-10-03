@@ -1,0 +1,15 @@
+{
+  "name": "quiet-writer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "轻量纯文字小说写作桌面应用",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "build": "node build.cjs",
+    "check": "node --check main.cjs && node --check preload.cjs && node --check renderer.js"
+  },
+  "devDependencies": {
+    "electron": "^40.0.0"
+  }
+}
