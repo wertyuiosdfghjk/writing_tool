@@ -10,6 +10,7 @@
     "check": "node --check main.cjs && node --check preload.cjs && node --check renderer.js"
   },
   "devDependencies": {
-    "electron": "^40.0.0"
+    "electron": "^40.0.0",
+    "rcedit": "^5.0.2"
   }
 }

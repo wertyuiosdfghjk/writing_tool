@@ -9,6 +9,14 @@ const path = require('node:path');
   for (const name of ['package.json', 'main.cjs', 'preload.cjs', 'index.html', 'style.css', 'renderer.js']) {
     await fs.copyFile(path.join(__dirname, name), path.join(appDir, name));
   }
+  await fs.cp(path.join(__dirname, 'assets'), path.join(appDir, 'assets'), { recursive: true });
   await fs.rename(path.join(target, 'electron.exe'), path.join(target, '写作工具.exe'));
+  const { rcedit } = await import('rcedit');
+  await rcedit(path.join(target, '写作工具.exe'), {
+    icon: path.join(__dirname, 'assets/app.ico'),
+    'version-string': { ProductName: '写作工具', FileDescription: '写作工具' },
+    'file-version': require('./package.json').version,
+    'product-version': require('./package.json').version
+  });
   console.log('App generated: ' + target);
 })();
