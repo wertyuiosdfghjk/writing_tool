@@ -23,7 +23,7 @@ ipcMain.handle('draft:save', async (_event, draft) => {
 });
 ipcMain.on('draft:close-ready', () => { allowClose = true; window.close(); });
 app.whenReady().then(() => {
-  window = new BrowserWindow({ width: 1120, height: 820, minWidth: 520, minHeight: 420, backgroundColor: '#f5f0df', title: '写作', autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false } });
+  window = new BrowserWindow({ width: 1120, height: 820, minWidth: 520, minHeight: 420, backgroundColor: '#f5f0df', title: '写作工具', autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false } });
   window.setMenu(null);
   window.loadFile('index.html');
   window.on('close', event => {

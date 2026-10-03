@@ -1,10 +1,10 @@
-# 写作
+# 写作工具
 
 Windows 桌面纯文字写作应用，基于 Electron。
 
 开发运行：在 process 中执行 `npm install`，随后双击 `启动写作.cmd`，或运行 `npm start`。
 
-构建：`npm run build`。生成的 Windows 应用位于 `../output/QuietWriter/写作.exe`，整个 QuietWriter 文件夹需要一起保留。
+构建：`npm run build`。生成的 Windows 应用位于 `../output/写作工具/写作工具.exe`，整个写作工具文件夹需要一起保留。
 
 V1.0 发布构建：`npm run build -- V1.0`，对应 Git 标签 `V1.0`，应用位于 `../output/V1.0/写作.exe`。
 
