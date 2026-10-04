@@ -47,7 +47,13 @@ app.on('browser-window-created', (_event, win) => {
         await openBook(testBook.id); if (snapshot().text !== beforeHome || list.children.length !== 2) throw new Error('First book corrupted');
         await openBook(second.id); if (snapshot().text !== '第二部作品的内容') throw new Error('Second book persistence failed');
         homeButton.click(); while (homePage.hidden) await new Promise(r => setTimeout(r, 20));
-        return { persisted: true, migration: true, outline: true, navigation: true, drawer: true, enter: true, home: true, rename: true, isolatedBooks: true };
+        const count = (await window.writer.list()).books.length;
+        document.getElementById('new-book-button').click();
+        while (bookList.querySelectorAll('.book-card').length !== count + 1) await new Promise(r => setTimeout(r, 20));
+        await new Promise(r => setTimeout(r, 50));
+        if (document.activeElement.tagName !== 'INPUT' || document.activeElement.value !== '未命名作品') throw new Error('Plus creation failed');
+        if (getComputedStyle(bookList).gridTemplateColumns.split(' ').length < 2) throw new Error('Grid layout failed');
+        return { persisted: true, migration: true, outline: true, navigation: true, drawer: true, enter: true, home: true, rename: true, isolatedBooks: true, plus: true, grid: true };
       })()`);
       console.log(JSON.stringify(result));
       await require('node:fs/promises').writeFile(path.join(__dirname, '.smoke-data/result.json'), JSON.stringify(result));

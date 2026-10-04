@@ -146,7 +146,7 @@ homeButton.addEventListener('click', async () => {
     if (!await save()) return;
     hideMenu(); workspace.hidden = true; homePage.hidden = false;
     toggle.hidden = true; document.querySelector('.size-control').hidden = true;
-    homeButton.setAttribute('aria-current', 'page'); bookTitle.textContent = '写作工具'; await refreshBooks(); document.getElementById('new-book-title').focus();
+    homeButton.setAttribute('aria-current', 'page'); bookTitle.textContent = '写作工具'; await refreshBooks(); document.getElementById('new-book-button').focus();
   } finally { returningHome = false; if (homePage.hidden) editor.contentEditable = 'true'; }
 });
 async function refreshBooks() {
@@ -155,7 +155,7 @@ async function refreshBooks() {
   const library = await window.writer.list(); bookList.replaceChildren();
   document.getElementById('library-empty').hidden = !!library.books.length;
   for (const book of library.books) {
-    const card = document.createElement('article'); card.className = 'book-card';
+    const card = document.createElement('article'); card.className = 'book-card'; card.dataset.bookId = book.id;
     const form = document.createElement('form'); form.className = 'book-title-form';
     const input = document.createElement('input'); input.value = book.title; input.maxLength = 100; input.required = true; input.setAttribute('aria-label', '修改书名：' + book.title);
     form.append(input);
@@ -189,6 +189,7 @@ async function refreshBooks() {
     open.addEventListener('click', () => openBook(book.id));
     details.append(time, open); card.append(form, details); bookList.append(card);
   }
+  const add = document.createElement('button'); add.id = 'new-book-button'; add.className = 'new-book-card'; add.setAttribute('aria-label', '新建作品'); add.title = '新建作品'; add.textContent = '+'; bookList.append(add);
 }
 async function openBook(id) {
   if (switchingBook) return; switchingBook = true;
@@ -205,11 +206,17 @@ async function openBook(id) {
   } catch { libraryMessage.textContent = '无法打开作品，请重试'; }
   finally { switchingBook = false; if (homePage.hidden) editor.contentEditable = 'true'; }
 }
-document.getElementById('new-book-form').addEventListener('submit', async event => {
-  event.preventDefault(); const input = document.getElementById('new-book-title'); const submit = event.target.querySelector('button'); submit.disabled = true;
-  try { await window.writer.create(input.value); input.value = ''; await refreshBooks(); libraryMessage.textContent = '作品已创建，点击继续写作开始。'; }
-  catch { libraryMessage.textContent = '创建失败，请检查书名并重试'; }
-  finally { submit.disabled = false; }
+bookList.addEventListener('click', async event => {
+  const add = event.target.closest('#new-book-button'); if (!add || add.disabled) return;
+  add.disabled = true;
+  try {
+    if (!await flushTitles()) return;
+    const book = await window.writer.create('未命名作品'); await refreshBooks();
+    const input = bookList.querySelector('[data-book-id="' + book.id + '"] input');
+    if (input) { input.focus(); input.select(); }
+    libraryMessage.textContent = '';
+  } catch { libraryMessage.textContent = '创建失败，请稍后重试'; }
+  finally { add.disabled = false; }
 });
 slider.addEventListener('input', () => { applySize(); if (loaded) changed(); });
 window.addEventListener('resize', hideMenu);
