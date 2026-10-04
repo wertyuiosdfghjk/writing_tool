@@ -36,8 +36,10 @@ app.on('browser-window-created', (_event, win) => {
         if (workspace.hidden || !homePage.hidden || snapshot().text !== beforeHome || list.children.length !== 2) throw new Error('Continue writing failed');
         homeButton.click(); while (homePage.hidden) await new Promise(r => setTimeout(r, 20));
         const titleForm = Array.from(bookList.querySelectorAll('form')).find(f => f.querySelector('input').value === '测试作品甲');
-        titleForm.querySelector('input').value = '新书名'; titleForm.requestSubmit();
-        while (titleForm.querySelector('button').disabled) await new Promise(r => setTimeout(r, 20));
+        if (titleForm.querySelector('button')) throw new Error('Unexpected title save button');
+        titleForm.querySelector('input').value = '新书名'; titleForm.querySelector('input').dispatchEvent(new Event('input'));
+        await new Promise(r => setTimeout(r, 800));
+        if ((await window.writer.load(testBook.id)).title !== '新书名') throw new Error('Automatic title save failed');
         await openBook(testBook.id); if (bookTitle.textContent !== '新书名') throw new Error('Rename failed');
         const second = await window.writer.create('测试作品乙'); await openBook(second.id);
         if (snapshot().text !== '' || list.children.length) throw new Error('Books not isolated');

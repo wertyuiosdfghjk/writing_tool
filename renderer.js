@@ -16,6 +16,11 @@ const bookTitle = document.querySelector('.app-name');
 const libraryMessage = document.getElementById('library-message');
 let activeBook = null;
 let switchingBook = false;
+const titleSavers = new Map();
+async function flushTitles() {
+  const results = await Promise.all(Array.from(titleSavers.values(), flush => flush()));
+  return results.every(Boolean);
+}
 let writingRange = null;
 let returningHome = false;
 let revision = 0, savedRevision = 0, timer, loaded = false, composing = false, saving = null;
@@ -145,23 +150,42 @@ homeButton.addEventListener('click', async () => {
   } finally { returningHome = false; if (homePage.hidden) editor.contentEditable = 'true'; }
 });
 async function refreshBooks() {
+  if (!await flushTitles()) return;
+  titleSavers.clear();
   const library = await window.writer.list(); bookList.replaceChildren();
   document.getElementById('library-empty').hidden = !!library.books.length;
   for (const book of library.books) {
     const card = document.createElement('article'); card.className = 'book-card';
     const form = document.createElement('form'); form.className = 'book-title-form';
     const input = document.createElement('input'); input.value = book.title; input.maxLength = 100; input.required = true; input.setAttribute('aria-label', '修改书名：' + book.title);
-    const rename = document.createElement('button'); rename.type = 'submit'; rename.className = 'rename-button'; rename.textContent = '保存书名';
-    form.append(input, rename);
+    form.append(input);
+    let titleTimer, titleSaving = null, titleComposing = false;
+    async function saveTitle() {
+      clearTimeout(titleTimer);
+      if (titleComposing) return false;
+      if (titleSaving) { await titleSaving; return saveTitle(); }
+      const value = input.value.trim();
+      if (!value) { input.value = book.title; return true; }
+      if (value === book.title) return true;
+      titleSaving = (async () => {
+        try {
+          const renamed = await window.writer.rename(book.id, value); book.title = renamed.title;
+          if (input.value.trim() === value && document.activeElement !== input) input.value = renamed.title;
+          if (activeBook?.id === book.id) activeBook.title = renamed.title;
+          libraryMessage.textContent = ''; setStatus('已自动保存'); return true;
+        } catch { libraryMessage.textContent = '书名保存失败，请稍后重试'; setStatus('书名保存失败', true); titleTimer = setTimeout(saveTitle, 3000); return false; }
+      })();
+      try { return await titleSaving; } finally { titleSaving = null; }
+    }
+    titleSavers.set(book.id, saveTitle);
+    input.addEventListener('input', () => { clearTimeout(titleTimer); setStatus('等待保存…'); if (!titleComposing) titleTimer = setTimeout(saveTitle, 600); });
+    input.addEventListener('compositionstart', () => { titleComposing = true; clearTimeout(titleTimer); });
+    input.addEventListener('compositionend', () => { titleComposing = false; titleTimer = setTimeout(saveTitle, 600); });
+    input.addEventListener('blur', saveTitle);
+    form.addEventListener('submit', event => { event.preventDefault(); if (!titleComposing) { saveTitle(); input.blur(); } });
     const details = document.createElement('div'); details.className = 'book-details';
     const time = document.createElement('span'); time.textContent = '最近写作 · ' + new Date(book.updatedAt).toLocaleDateString('zh-CN');
     const open = document.createElement('button'); open.className = 'open-book'; open.textContent = '继续写作 →';
-    form.addEventListener('submit', async event => {
-      event.preventDefault(); rename.disabled = true;
-      try { const renamed = await window.writer.rename(book.id, input.value); input.value = renamed.title; if (activeBook?.id === book.id) activeBook.title = renamed.title; libraryMessage.textContent = '书名已保存'; }
-      catch { libraryMessage.textContent = '书名保存失败，请重试'; }
-      finally { rename.disabled = false; }
-    });
     open.addEventListener('click', () => openBook(book.id));
     details.append(time, open); card.append(form, details); bookList.append(card);
   }
@@ -170,7 +194,7 @@ async function openBook(id) {
   if (switchingBook) return; switchingBook = true;
   try {
     editor.contentEditable = 'false';
-    if (!await save()) return;
+    if (!await flushTitles() || !await save()) return;
     const draft = await window.writer.load(id); activeBook = draft;
     renderDraft(draft); slider.value = draft.fontSize || 22; applySize(); revision = savedRevision = 0; writingRange = null;
     bookTitle.textContent = draft.title; bookTitle.title = draft.title;
@@ -191,7 +215,7 @@ slider.addEventListener('input', () => { applySize(); if (loaded) changed(); });
 window.addEventListener('resize', hideMenu);
 document.getElementById('scroll-area').addEventListener('scroll', hideMenu);
 window.addEventListener('blur', save);
-window.writer.onClose(async () => { composing = false; if (await save()) window.writer.closeReady(); });
+window.writer.onClose(async () => { composing = false; if (await flushTitles() && await save()) window.writer.closeReady(); });
 (async () => {
   try {
     await refreshBooks(); loaded = true; workspace.hidden = true; homePage.hidden = false; toggle.hidden = true;
