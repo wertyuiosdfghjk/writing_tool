@@ -3,6 +3,7 @@ const fs = require('node:fs/promises');
 const path = require('node:path');
 const { createLibrary } = require('./library.cjs');
 (async () => {
+  await fs.mkdir(path.join(__dirname, '.smoke-data'), { recursive: true });
   const directory = await fs.mkdtemp(path.join(__dirname, '.smoke-data/library-'));
   const legacy = { text: '第一章\n旧稿', paragraphs: [{ text: '第一章', type: 'chapter' }, { text: '旧稿', type: 'body' }], fontSize: 24 };
   await fs.writeFile(path.join(directory, 'manuscript.json'), JSON.stringify(legacy));
