@@ -9,11 +9,12 @@
 </head>
 <body>
   <header class="toolbar">
-    <div class="identity"><div class="navigation-buttons"><button id="home-button" class="icon-button" aria-label="返回首页" title="返回首页"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v11h5v-6h4v6h5V9"/></svg></button><span class="navigation-divider"></span><button id="drawer-toggle" class="icon-button" aria-label="展开章节目录" title="章节目录" aria-expanded="false" aria-controls="drawer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14"/></svg></button></div><span class="app-name">写作工具</span><span class="save-state" id="save-state" role="status">正在打开…</span></div>
+    <div class="identity"><div class="navigation-buttons"><button id="home-button" class="icon-button" aria-label="返回首页" title="返回首页"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v11h5v-6h4v6h5V9"/></svg></button></div><span class="app-name">写作工具</span><span class="save-state" id="save-state" role="status">正在打开…</span></div>
     <label class="size-control" for="font-size"><span class="small-a" aria-hidden="true">A</span><input id="font-size" type="range" min="16" max="36" value="22" aria-label="正文字号"><span class="large-a" aria-hidden="true">A</span><output id="size-value" for="font-size">22</output></label>
   </header>
   <main id="home-page" aria-label="软件首页" hidden><div class="home-content"><img src="assets/logo.png" alt="" class="home-logo"><h1>写作工具</h1><p>让故事慢慢生长。</p><button id="continue-writing" class="continue-button">继续写作 <span aria-hidden="true">→</span></button></div></main>
   <div class="workspace">
+    <div class="floating-navigation"><button id="drawer-toggle" class="icon-button" aria-label="展开章节目录" title="章节目录" aria-expanded="false" aria-controls="drawer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14"/></svg></button></div>
     <aside id="drawer" inert aria-label="章节目录"><div class="drawer-title">章节</div><nav id="chapter-list" aria-label="章节导航"></nav><p id="chapter-empty">将段落设为章标题或节标题，<br>它们就会出现在这里。</p></aside>
     <main class="scroll-area" id="scroll-area">
       <div class="paper"><div id="editor" role="textbox" aria-label="小说正文" aria-multiline="true" contenteditable="false" spellcheck="false"></div><button id="paragraph-button" class="paragraph-button" aria-label="设置段落类型" aria-expanded="false" title="设置段落类型" hidden>⋮</button></div>

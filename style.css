@@ -67,3 +67,11 @@ button:focus-visible { outline: 2px solid #9b9476; outline-offset: 2px; }
 .continue-button span { margin-left: 18px; color: #8d8266; }
 .continue-button:hover { background: #e0d6bb; }
 @media (max-width: 620px) { .navigation-buttons { gap: 2px; } .navigation-divider { margin: 0; } .app-name { font-size: 12px; } .save-state { max-width: 95px; overflow: hidden; text-overflow: ellipsis; } }
+.floating-navigation { position: absolute; z-index: 7; left: 40px; top: 16px; }
+.floating-navigation .icon-button { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: #faf7ee; border: 1px solid #d9d1ba75; box-shadow: 0 2px 8px #413d3208; border-radius: 8px; }
+.floating-navigation .icon-button:hover, .floating-navigation .icon-button[aria-expanded=true] { background: #ece5d1; }
+.workspace #drawer { position: absolute; z-index: 6; left: 40px; top: 58px; bottom: 24px; height: auto; width: 248px; max-width: calc(100% - 64px); border: 1px solid #d8cfb775; border-radius: 14px; background: #faf7eef5; box-shadow: 0 12px 36px #413d3214; overflow-y: auto; opacity: 0; visibility: hidden; transform: translateX(-12px); transition: opacity .18s ease, transform .18s ease, visibility .18s; }
+.drawer-open .workspace #drawer { opacity: 1; visibility: visible; transform: translateX(0); }
+.workspace #drawer .drawer-title { padding-top: 24px; }
+@media (max-width: 620px) { .floating-navigation, .workspace #drawer { left: 22px; } }
+@media (prefers-reduced-motion: reduce) { .workspace #drawer { transition: none; } }

@@ -134,13 +134,13 @@ homeButton.addEventListener('click', async () => {
   try {
     if (!await save()) return;
     hideMenu(); workspace.hidden = true; homePage.hidden = false;
-    toggle.hidden = true; document.querySelector('.navigation-divider').hidden = true; document.querySelector('.size-control').hidden = true;
+    toggle.hidden = true; document.querySelector('.size-control').hidden = true;
     homeButton.setAttribute('aria-current', 'page'); continueButton.focus();
   } finally { returningHome = false; }
 });
 continueButton.addEventListener('click', () => {
   homePage.hidden = true; workspace.hidden = false; toggle.hidden = false;
-  document.querySelector('.navigation-divider').hidden = false; document.querySelector('.size-control').hidden = false;
+  document.querySelector('.size-control').hidden = false;
   homeButton.removeAttribute('aria-current'); editor.focus({ preventScroll: true });
   if (writingRange && editor.contains(writingRange.startContainer)) { const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(writingRange); }
 });
