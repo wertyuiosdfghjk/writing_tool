@@ -109,3 +109,19 @@ button:focus-visible { outline: 2px solid #9b9476; outline-offset: 2px; }
 .new-book-card:disabled { opacity: .5; }
 @media (max-width: 760px) { #book-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; } }
 @media (max-width: 420px) { #book-list { grid-template-columns: minmax(0, 1fr); } }
+.book-card { position: relative; padding-top: 48px; }
+.book-options { position: absolute; top: 10px; right: 10px; z-index: 2; }
+.book-more { width: 30px; height: 28px; border: 0; border-radius: 6px; background: transparent; color: #92866c; font-size: 22px; line-height: 1; }
+.book-more:hover, .book-more[aria-expanded=true] { background: #ece5d3; }
+.book-menu { position: absolute; right: 0; top: 34px; width: 130px; padding: 5px; border: 1px solid #ddd3bc; border-radius: 8px; background: #fffdf6; box-shadow: 0 6px 20px #413d3215; }
+.delete-book { width: 100%; text-align: left; padding: 9px 12px; border: 0; border-radius: 5px; background: transparent; color: #a35947; font-size: 12px; }
+.delete-book:hover, .delete-book:focus-visible { background: #f5e9e0; }
+#delete-dialog { width: min(380px, calc(100% - 48px)); padding: 26px; border: 1px solid #d8cfb7; border-radius: 14px; background: #faf7ee; color: var(--ink); box-shadow: 0 20px 60px #413d3220; }
+#delete-dialog::backdrop { background: #413d3230; }
+#delete-dialog h2 { font-size: 18px; font-weight: 500; margin: 0 0 18px; }
+#delete-dialog p { font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+#delete-dialog .delete-note { font-size: 12px; color: #9a8e77; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+.dialog-actions button { border: 1px solid #d8cfb7; background: #f2ecdc; border-radius: 7px; padding: 8px 18px; font-size: 12px; }
+.dialog-actions .danger-button { background: #a85d4b; color: #fff; border-color: #a85d4b; }
+#delete-error { color: #a35947; }

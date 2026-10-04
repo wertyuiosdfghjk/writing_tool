@@ -21,6 +21,7 @@
     </main>
   </div>
   <div id="paragraph-menu" role="menu" aria-label="段落类型" hidden><span class="menu-title">段落类型</span><button role="menuitemradio" data-type="chapter">章标题 <small>一级标题</small></button><button role="menuitemradio" data-type="section">节标题 <small>二级标题</small></button><button role="menuitemradio" data-type="body">正文</button></div>
+  <dialog id="delete-dialog" aria-labelledby="delete-title"><h2 id="delete-title">删除作品？</h2><p id="delete-description"></p><p class="delete-note">正文和章节将一并删除，无法撤销。</p><div class="dialog-actions"><button id="delete-cancel">取消</button><button id="delete-confirm" class="danger-button">删除</button></div><p id="delete-error" role="alert" hidden></p></dialog>
   <script src="renderer.js"></script>
 </body>
 </html>

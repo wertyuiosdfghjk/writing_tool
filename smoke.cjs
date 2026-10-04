@@ -53,7 +53,15 @@ app.on('browser-window-created', (_event, win) => {
         await new Promise(r => setTimeout(r, 50));
         if (document.activeElement.tagName !== 'INPUT' || document.activeElement.value !== '未命名作品') throw new Error('Plus creation failed');
         if (getComputedStyle(bookList).gridTemplateColumns.split(' ').length < 2) throw new Error('Grid layout failed');
-        return { persisted: true, migration: true, outline: true, navigation: true, drawer: true, enter: true, home: true, rename: true, isolatedBooks: true, plus: true, grid: true };
+        const card = bookList.querySelector('[data-book-id="' + second.id + '"]');
+        card.querySelector('.book-more').click(); if (card.querySelector('.book-menu').hidden) throw new Error('Book menu failed');
+        card.querySelector('.delete-book').click(); while (!deleteDialog.open) await new Promise(r => setTimeout(r, 20));
+        deleteCancel.click(); if ((await window.writer.list()).books.length !== count + 1) throw new Error('Cancel deleted a book');
+        card.querySelector('.book-more').click(); card.querySelector('.delete-book').click(); while (!deleteDialog.open) await new Promise(r => setTimeout(r, 20));
+        deleteConfirm.click(); while (deleteDialog.open || deleteConfirm.disabled) await new Promise(r => setTimeout(r, 20));
+        if ((await window.writer.list()).books.some(b => b.id === second.id) || activeBook !== null) throw new Error('Delete failed');
+        if ((await window.writer.load(testBook.id)).text !== beforeHome) throw new Error('Delete affected another book');
+        return { persisted: true, migration: true, outline: true, navigation: true, drawer: true, enter: true, home: true, rename: true, isolatedBooks: true, plus: true, grid: true, delete: true, cancel: true };
       })()`);
       console.log(JSON.stringify(result));
       await require('node:fs/promises').writeFile(path.join(__dirname, '.smoke-data/result.json'), JSON.stringify(result));

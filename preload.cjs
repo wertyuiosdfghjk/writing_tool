@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('writer', {
   list: () => ipcRenderer.invoke('library:list'),
   create: title => ipcRenderer.invoke('library:create', title),
   rename: (id, title) => ipcRenderer.invoke('library:rename', id, title),
+  remove: id => ipcRenderer.invoke('library:remove', id),
   save: draft => ipcRenderer.invoke('draft:save', draft),
   onClose: callback => ipcRenderer.on('draft:before-close', callback),
   closeReady: () => ipcRenderer.send('draft:close-ready')

@@ -17,6 +17,32 @@ const libraryMessage = document.getElementById('library-message');
 let activeBook = null;
 let switchingBook = false;
 const titleSavers = new Map();
+const deleteDialog = document.getElementById('delete-dialog');
+const deleteConfirm = document.getElementById('delete-confirm');
+const deleteCancel = document.getElementById('delete-cancel');
+let deletingBook = null;
+function closeBookMenus() {
+  for (const menu of bookList.querySelectorAll('.book-menu')) menu.hidden = true;
+  for (const trigger of bookList.querySelectorAll('.book-more')) trigger.setAttribute('aria-expanded', 'false');
+}
+document.addEventListener('click', event => { if (!event.target.closest('.book-options')) closeBookMenus(); });
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && event.target.closest('.book-options')) { const trigger = event.target.closest('.book-options').querySelector('.book-more'); closeBookMenus(); trigger.focus(); }
+});
+deleteCancel.addEventListener('click', () => deleteDialog.close());
+deleteConfirm.addEventListener('click', async () => {
+  if (!deletingBook || deleteConfirm.disabled) return;
+  deleteConfirm.disabled = deleteCancel.disabled = true;
+  try {
+    if (!await flushTitles()) throw new Error('书名未保存');
+    await window.writer.remove(deletingBook.id); titleSavers.delete(deletingBook.id);
+    if (activeBook?.id === deletingBook.id) { activeBook = null; clearTimeout(timer); timer = null; revision = savedRevision = 0; writingRange = null; }
+    deleteDialog.close(); deletingBook = null; await refreshBooks(); libraryMessage.textContent = '';
+    document.getElementById('new-book-button').focus();
+  } catch { const error = document.getElementById('delete-error'); error.textContent = '删除失败，作品仍保留，请重试。'; error.hidden = false; }
+  finally { deleteConfirm.disabled = deleteCancel.disabled = false; }
+});
+deleteDialog.addEventListener('cancel', event => { if (deleteConfirm.disabled) event.preventDefault(); });
 async function flushTitles() {
   const results = await Promise.all(Array.from(titleSavers.values(), flush => flush()));
   return results.every(Boolean);
@@ -156,6 +182,18 @@ async function refreshBooks() {
   document.getElementById('library-empty').hidden = !!library.books.length;
   for (const book of library.books) {
     const card = document.createElement('article'); card.className = 'book-card'; card.dataset.bookId = book.id;
+    const options = document.createElement('div'); options.className = 'book-options';
+    const more = document.createElement('button'); more.className = 'book-more'; more.textContent = '⋯'; more.setAttribute('aria-label', '作品菜单'); more.setAttribute('aria-haspopup', 'menu'); more.setAttribute('aria-expanded', 'false');
+    const bookMenu = document.createElement('div'); bookMenu.className = 'book-menu'; bookMenu.setAttribute('role', 'menu'); bookMenu.hidden = true;
+    const remove = document.createElement('button'); remove.textContent = '删除作品'; remove.className = 'delete-book'; remove.setAttribute('role', 'menuitem');
+    more.addEventListener('click', () => { const open = bookMenu.hidden; closeBookMenus(); bookMenu.hidden = !open; more.setAttribute('aria-expanded', String(open)); if (open) remove.focus(); });
+    remove.addEventListener('click', async () => {
+      closeBookMenus(); if (!await flushTitles()) return;
+      deletingBook = { id: book.id, title: book.title };
+      document.getElementById('delete-description').textContent = '确定删除《' + book.title + '》吗？'; document.getElementById('delete-error').hidden = true;
+      deleteDialog.showModal(); deleteCancel.focus();
+    });
+    bookMenu.append(remove); options.append(more, bookMenu); card.append(options);
     const form = document.createElement('form'); form.className = 'book-title-form';
     const input = document.createElement('input'); input.value = book.title; input.maxLength = 100; input.required = true; input.setAttribute('aria-label', '修改书名：' + book.title);
     form.append(input);

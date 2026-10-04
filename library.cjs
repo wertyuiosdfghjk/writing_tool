@@ -31,6 +31,13 @@ function createLibrary(directory) {
     load: id => serial(async () => { const library = await read(); const book = library.books.find(b => b.id === (id || library.activeId)); if (!book) throw new Error('作品不存在'); library.activeId = book.id; await write(library); return book; }),
     create: value => serial(async () => { const library = await read(); const book = { id: randomUUID(), title: title(value), text: '', paragraphs: [{ text: '', type: 'body' }], fontSize: 22, updatedAt: Date.now() }; library.books.push(book); await write(library); return book; }),
     rename: (id, value) => serial(async () => { const library = await read(); const book = library.books.find(b => b.id === id); if (!book) throw new Error('作品不存在'); book.title = title(value); await write(library); return book; }),
+    remove: id => serial(async () => {
+      const library = await read(); const index = library.books.findIndex(b => b.id === id);
+      if (index === -1) throw new Error('作品不存在');
+      library.books.splice(index, 1);
+      if (library.activeId === id) library.activeId = library.books[0]?.id || null;
+      await write(library);
+    }),
     save: draft => serial(async () => {
       if (typeof draft.text !== 'string' || !Number.isFinite(draft.fontSize)) throw new Error('Invalid draft');
       const library = await read(); const book = library.books.find(b => b.id === draft.id); if (!book) throw new Error('作品不存在');

@@ -10,6 +10,7 @@ ipcMain.handle('draft:save', (_event, draft) => library.save(draft));
 ipcMain.handle('library:list', () => library.list());
 ipcMain.handle('library:create', (_event, title) => library.create(title));
 ipcMain.handle('library:rename', (_event, id, title) => library.rename(id, title));
+ipcMain.handle('library:remove', (_event, id) => library.remove(id));
 ipcMain.on('draft:close-ready', () => { allowClose = true; window.close(); });
 app.whenReady().then(() => {
   window = new BrowserWindow({ width: 1120, height: 820, minWidth: 520, minHeight: 420, backgroundColor: '#f5f0df', title: '写作工具', icon: path.join(__dirname, 'assets/app.ico'), autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false } });
