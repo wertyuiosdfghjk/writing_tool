@@ -7,7 +7,8 @@ app.on('browser-window-created', (_event, win) => {
   win.webContents.once('did-finish-load', async () => {
     try {
       const result = await win.webContents.executeJavaScript(`(async () => {
-        while (document.getElementById('editor').contentEditable !== 'true') await new Promise(r => setTimeout(r, 20));
+        while (!loaded) await new Promise(r => setTimeout(r, 20));
+        const testBook = await window.writer.create('测试作品甲'); await openBook(testBook.id);
         renderDraft({ text: '第一章 起点\\n第一节 清晨\\n正文内容' });
         if (blocks().length !== 3 || blocks().some(p => p.dataset.type !== 'body')) throw new Error('Legacy migration failed');
         const first = blocks()[0]; placeButton(first); button.click();
@@ -31,9 +32,20 @@ app.on('browser-window-created', (_event, win) => {
         const beforeHome = snapshot().text;
         homeButton.click(); while (homePage.hidden) await new Promise(r => setTimeout(r, 20));
         if (!workspace.hidden || !toggle.hidden) throw new Error('Home navigation failed');
-        continueButton.click();
+        await openBook(testBook.id);
         if (workspace.hidden || !homePage.hidden || snapshot().text !== beforeHome || list.children.length !== 2) throw new Error('Continue writing failed');
-        return { persisted: true, migration: true, outline: true, navigation: true, drawer: true, enter: true, home: true };
+        homeButton.click(); while (homePage.hidden) await new Promise(r => setTimeout(r, 20));
+        const titleForm = Array.from(bookList.querySelectorAll('form')).find(f => f.querySelector('input').value === '测试作品甲');
+        titleForm.querySelector('input').value = '新书名'; titleForm.requestSubmit();
+        while (titleForm.querySelector('button').disabled) await new Promise(r => setTimeout(r, 20));
+        await openBook(testBook.id); if (bookTitle.textContent !== '新书名') throw new Error('Rename failed');
+        const second = await window.writer.create('测试作品乙'); await openBook(second.id);
+        if (snapshot().text !== '' || list.children.length) throw new Error('Books not isolated');
+        renderDraft({ text: '第二部作品的内容' }); changed(); await save();
+        await openBook(testBook.id); if (snapshot().text !== beforeHome || list.children.length !== 2) throw new Error('First book corrupted');
+        await openBook(second.id); if (snapshot().text !== '第二部作品的内容') throw new Error('Second book persistence failed');
+        homeButton.click(); while (homePage.hidden) await new Promise(r => setTimeout(r, 20));
+        return { persisted: true, migration: true, outline: true, navigation: true, drawer: true, enter: true, home: true, rename: true, isolatedBooks: true };
       })()`);
       console.log(JSON.stringify(result));
       await require('node:fs/promises').writeFile(path.join(__dirname, '.smoke-data/result.json'), JSON.stringify(result));

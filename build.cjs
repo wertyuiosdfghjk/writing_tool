@@ -6,7 +6,7 @@ const path = require('node:path');
   await fs.cp(path.join(__dirname, 'node_modules/electron/dist'), target, { recursive: true });
   const appDir = path.join(target, 'resources/app');
   await fs.mkdir(appDir, { recursive: true });
-  for (const name of ['package.json', 'main.cjs', 'preload.cjs', 'index.html', 'style.css', 'renderer.js']) {
+  for (const name of ['package.json', 'main.cjs', 'library.cjs', 'preload.cjs', 'index.html', 'style.css', 'renderer.js']) {
     await fs.copyFile(path.join(__dirname, name), path.join(appDir, name));
   }
   await fs.cp(path.join(__dirname, 'assets'), path.join(appDir, 'assets'), { recursive: true });

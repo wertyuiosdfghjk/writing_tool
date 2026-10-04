@@ -76,3 +76,26 @@ button:focus-visible { outline: 2px solid #9b9476; outline-offset: 2px; }
 @media (max-width: 620px) { .floating-navigation, .workspace #drawer { left: 22px; } }
 @media (prefers-reduced-motion: reduce) { .workspace #drawer { transition: none; } }
 .workspace #drawer { bottom: auto; height: fit-content; min-height: 180px; max-height: calc(100% - 82px); padding-bottom: 18px; background: #faf7ee; }
+#home-page { display: block; }
+.library-content { max-width: 860px; margin: auto; padding: 56px 40px 90px; }
+.library-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; }
+.library-heading h1 { font-size: 24px; font-weight: 500; letter-spacing: 2px; margin: 0 0 12px; }
+.library-heading p { font-size: 12px; color: #958c78; margin: 0; }
+.library-logo { width: 56px; height: 56px; border-radius: 14px; }
+#new-book-form label { display: block; font-size: 12px; color: #8b826e; margin-bottom: 10px; }
+.new-book-fields { display: flex; gap: 12px; }
+.new-book-fields input { flex: 1; min-width: 0; background: #fcf9f0; border: 1px solid #d9cfb5; border-radius: 8px; padding: 12px 14px; color: var(--ink); font: 14px inherit; }
+#library-message { min-height: 20px; font-size: 12px; color: #8b826e; }
+#book-list { display: grid; gap: 16px; }
+.book-card { background: #faf7ee; border: 1px solid #ddd4bd80; border-radius: 12px; padding: 22px 24px; }
+.book-title-form { display: flex; gap: 14px; align-items: center; }
+.book-title-form input { min-width: 0; flex: 1; color: var(--ink); font-family: 'Times New Roman', 'SimSun', serif; font-size: 21px; background: transparent; border: 0; border-bottom: 1px solid transparent; padding: 6px 0; }
+.book-title-form input:focus { outline: none; border-bottom-color: #b2a68a; }
+.rename-button, .open-book { border: 0; background: transparent; font-size: 12px; padding: 8px; border-radius: 6px; color: #817459; white-space: nowrap; }
+.rename-button:hover, .open-book:hover { background: #eae2ce; }
+.book-details { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; font-size: 11px; color: #a19884; }
+.app-name { max-width: 42vw; overflow: hidden; text-overflow: ellipsis; }
+.library-content { width: 100%; }
+.new-book-fields input { font-family: inherit; font-size: 14px; }
+#library-empty { color: #a19884; font-size: 13px; text-align: center; padding: 36px 0; }
+@media (max-width: 620px) { .library-content { padding: 36px 24px 60px; } .book-card { padding: 18px; } }

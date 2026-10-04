@@ -11,7 +11,11 @@ const paper = document.querySelector('.paper');
 const homeButton = document.getElementById('home-button');
 const homePage = document.getElementById('home-page');
 const workspace = document.querySelector('.workspace');
-const continueButton = document.getElementById('continue-writing');
+const bookList = document.getElementById('book-list');
+const bookTitle = document.querySelector('.app-name');
+const libraryMessage = document.getElementById('library-message');
+let activeBook = null;
+let switchingBook = false;
 let writingRange = null;
 let returningHome = false;
 let revision = 0, savedRevision = 0, timer, loaded = false, composing = false, saving = null;
@@ -34,7 +38,7 @@ function normalize() {
 }
 function snapshot() {
   const paragraphs = blocks().map(p => ({ text: paragraphText(p), type: p.dataset.type || 'body' }));
-  return { text: paragraphs.map(p => p.text).join('\n'), paragraphs, fontSize: Number(slider.value) };
+  return { id: activeBook?.id, text: paragraphs.map(p => p.text).join('\n'), paragraphs, fontSize: Number(slider.value) };
 }
 function renderDraft(draft) {
   const paragraphs = Array.isArray(draft.paragraphs) && draft.paragraphs.length ? draft.paragraphs : (draft.text || '').split('\n').map(text => ({ text, type: 'body' }));
@@ -66,6 +70,7 @@ function applySize() { document.documentElement.style.setProperty('--font-size',
 async function save() {
   clearTimeout(timer); timer = null;
   if (!loaded || composing) return false;
+  if (!activeBook) return true;
   if (saving) { try { await saving; } catch {} return save(); }
   if (revision === savedRevision) return true;
   const version = revision; setStatus('正在保存…'); saving = window.writer.save(snapshot());
@@ -116,7 +121,7 @@ menu.addEventListener('click', event => {
 });
 document.addEventListener('mousedown', event => { if (!menu.contains(event.target) && event.target !== button) hideMenu(); });
 document.addEventListener('keydown', event => {
-  if (event.key === 'Escape') { hideMenu(); if (homePage.hidden) editor.focus({ preventScroll: true }); }
+  if (event.key === 'Escape' && document.activeElement.closest('#editor, #paragraph-menu, #paragraph-button')) { hideMenu(); if (homePage.hidden) editor.focus({ preventScroll: true }); }
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); save(); }
   if (homePage.hidden && (event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'p') { event.preventDefault(); const p = currentParagraph(); if (p) { placeButton(p); button.click(); } }
   if (editor.contains(event.target) && (event.ctrlKey || event.metaKey) && ['b','i','u'].includes(event.key.toLowerCase())) event.preventDefault();
@@ -132,17 +137,55 @@ homeButton.addEventListener('click', async () => {
   const selection = window.getSelection();
   writingRange = selection.rangeCount && editor.contains(selection.anchorNode) ? selection.getRangeAt(0).cloneRange() : null;
   try {
+    editor.contentEditable = 'false';
     if (!await save()) return;
     hideMenu(); workspace.hidden = true; homePage.hidden = false;
     toggle.hidden = true; document.querySelector('.size-control').hidden = true;
-    homeButton.setAttribute('aria-current', 'page'); continueButton.focus();
-  } finally { returningHome = false; }
+    homeButton.setAttribute('aria-current', 'page'); bookTitle.textContent = '写作工具'; await refreshBooks(); document.getElementById('new-book-title').focus();
+  } finally { returningHome = false; if (homePage.hidden) editor.contentEditable = 'true'; }
 });
-continueButton.addEventListener('click', () => {
-  homePage.hidden = true; workspace.hidden = false; toggle.hidden = false;
-  document.querySelector('.size-control').hidden = false;
-  homeButton.removeAttribute('aria-current'); editor.focus({ preventScroll: true });
-  if (writingRange && editor.contains(writingRange.startContainer)) { const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(writingRange); }
+async function refreshBooks() {
+  const library = await window.writer.list(); bookList.replaceChildren();
+  document.getElementById('library-empty').hidden = !!library.books.length;
+  for (const book of library.books) {
+    const card = document.createElement('article'); card.className = 'book-card';
+    const form = document.createElement('form'); form.className = 'book-title-form';
+    const input = document.createElement('input'); input.value = book.title; input.maxLength = 100; input.required = true; input.setAttribute('aria-label', '修改书名：' + book.title);
+    const rename = document.createElement('button'); rename.type = 'submit'; rename.className = 'rename-button'; rename.textContent = '保存书名';
+    form.append(input, rename);
+    const details = document.createElement('div'); details.className = 'book-details';
+    const time = document.createElement('span'); time.textContent = '最近写作 · ' + new Date(book.updatedAt).toLocaleDateString('zh-CN');
+    const open = document.createElement('button'); open.className = 'open-book'; open.textContent = '继续写作 →';
+    form.addEventListener('submit', async event => {
+      event.preventDefault(); rename.disabled = true;
+      try { const renamed = await window.writer.rename(book.id, input.value); input.value = renamed.title; if (activeBook?.id === book.id) activeBook.title = renamed.title; libraryMessage.textContent = '书名已保存'; }
+      catch { libraryMessage.textContent = '书名保存失败，请重试'; }
+      finally { rename.disabled = false; }
+    });
+    open.addEventListener('click', () => openBook(book.id));
+    details.append(time, open); card.append(form, details); bookList.append(card);
+  }
+}
+async function openBook(id) {
+  if (switchingBook) return; switchingBook = true;
+  try {
+    editor.contentEditable = 'false';
+    if (!await save()) return;
+    const draft = await window.writer.load(id); activeBook = draft;
+    renderDraft(draft); slider.value = draft.fontSize || 22; applySize(); revision = savedRevision = 0; writingRange = null;
+    bookTitle.textContent = draft.title; bookTitle.title = draft.title;
+    homePage.hidden = true; workspace.hidden = false; toggle.hidden = false;
+    document.querySelector('.size-control').hidden = false; homeButton.removeAttribute('aria-current');
+    document.getElementById('scroll-area').scrollTop = 0; document.body.classList.remove('drawer-open'); drawer.inert = true; toggle.setAttribute('aria-expanded', 'false'); toggle.setAttribute('aria-label', '展开章节目录');
+    editor.contentEditable = 'true'; editor.focus(); setStatus('已自动保存');
+  } catch { libraryMessage.textContent = '无法打开作品，请重试'; }
+  finally { switchingBook = false; if (homePage.hidden) editor.contentEditable = 'true'; }
+}
+document.getElementById('new-book-form').addEventListener('submit', async event => {
+  event.preventDefault(); const input = document.getElementById('new-book-title'); const submit = event.target.querySelector('button'); submit.disabled = true;
+  try { await window.writer.create(input.value); input.value = ''; await refreshBooks(); libraryMessage.textContent = '作品已创建，点击继续写作开始。'; }
+  catch { libraryMessage.textContent = '创建失败，请检查书名并重试'; }
+  finally { submit.disabled = false; }
 });
 slider.addEventListener('input', () => { applySize(); if (loaded) changed(); });
 window.addEventListener('resize', hideMenu);
@@ -151,7 +194,8 @@ window.addEventListener('blur', save);
 window.writer.onClose(async () => { composing = false; if (await save()) window.writer.closeReady(); });
 (async () => {
   try {
-    const draft = await window.writer.load(); renderDraft(draft); slider.value = Math.min(36, Math.max(16, Number(draft.fontSize) || 22));
-    applySize(); loaded = true; editor.contentEditable = 'true'; document.execCommand('defaultParagraphSeparator', false, 'div'); setStatus('已自动保存'); editor.focus();
-  } catch { setStatus('无法读取正文 · 请重新打开应用', true); }
+    await refreshBooks(); loaded = true; workspace.hidden = true; homePage.hidden = false; toggle.hidden = true;
+    document.querySelector('.size-control').hidden = true; homeButton.setAttribute('aria-current', 'page');
+    document.execCommand('defaultParagraphSeparator', false, 'div'); setStatus('已自动保存');
+  } catch { setStatus('无法读取作品 · 请重新打开应用', true); }
 })();
