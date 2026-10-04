@@ -1,7 +1,9 @@
 const fs = require('node:fs/promises');
 const path = require('node:path');
 (async () => {
-  const target = path.resolve(__dirname, '../output', process.argv[2] || '写作工具');
+  const outputRoot = path.resolve(__dirname, '../output');
+  const target = path.resolve(outputRoot, process.argv[2] || 'V1.0');
+  if (!target.startsWith(outputRoot + path.sep)) throw new Error('Build target must be inside output');
   await fs.mkdir(target, { recursive: true });
   await fs.cp(path.join(__dirname, 'node_modules/electron/dist'), target, { recursive: true });
   const appDir = path.join(target, 'resources/app');
