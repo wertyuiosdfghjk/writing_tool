@@ -75,3 +75,4 @@ button:focus-visible { outline: 2px solid #9b9476; outline-offset: 2px; }
 .workspace #drawer .drawer-title { padding-top: 24px; }
 @media (max-width: 620px) { .floating-navigation, .workspace #drawer { left: 22px; } }
 @media (prefers-reduced-motion: reduce) { .workspace #drawer { transition: none; } }
+.workspace #drawer { bottom: auto; height: fit-content; min-height: 180px; max-height: calc(100% - 82px); padding-bottom: 18px; background: #faf7ee; }
