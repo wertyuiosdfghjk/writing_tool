@@ -8,6 +8,12 @@ const list = document.getElementById('chapter-list');
 const button = document.getElementById('paragraph-button');
 const menu = document.getElementById('paragraph-menu');
 const paper = document.querySelector('.paper');
+const homeButton = document.getElementById('home-button');
+const homePage = document.getElementById('home-page');
+const workspace = document.querySelector('.workspace');
+const continueButton = document.getElementById('continue-writing');
+let writingRange = null;
+let returningHome = false;
 let revision = 0, savedRevision = 0, timer, loaded = false, composing = false, saving = null;
 let target = null, savedRange = null;
 const known = new WeakSet();
@@ -110,15 +116,33 @@ menu.addEventListener('click', event => {
 });
 document.addEventListener('mousedown', event => { if (!menu.contains(event.target) && event.target !== button) hideMenu(); });
 document.addEventListener('keydown', event => {
-  if (event.key === 'Escape') { hideMenu(); editor.focus({ preventScroll: true }); }
+  if (event.key === 'Escape') { hideMenu(); if (homePage.hidden) editor.focus({ preventScroll: true }); }
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); save(); }
-  if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'p') { event.preventDefault(); const p = currentParagraph(); if (p) { placeButton(p); button.click(); } }
+  if (homePage.hidden && (event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'p') { event.preventDefault(); const p = currentParagraph(); if (p) { placeButton(p); button.click(); } }
   if (editor.contains(event.target) && (event.ctrlKey || event.metaKey) && ['b','i','u'].includes(event.key.toLowerCase())) event.preventDefault();
   if (!menu.hidden && ['ArrowDown','ArrowUp'].includes(event.key)) { event.preventDefault(); const items = Array.from(menu.querySelectorAll('button')); let i = items.indexOf(document.activeElement); items[(i + (event.key === 'ArrowDown' ? 1 : 2)) % 3].focus(); }
 });
 toggle.addEventListener('click', () => {
   const open = toggle.getAttribute('aria-expanded') !== 'true'; toggle.setAttribute('aria-expanded', String(open)); toggle.setAttribute('aria-label', open ? '收起章节目录' : '展开章节目录');
   drawer.inert = !open; document.body.classList.toggle('drawer-open', open); hideMenu();
+});
+homeButton.addEventListener('click', async () => {
+  if (!loaded || !homePage.hidden || returningHome) return;
+  returningHome = true;
+  const selection = window.getSelection();
+  writingRange = selection.rangeCount && editor.contains(selection.anchorNode) ? selection.getRangeAt(0).cloneRange() : null;
+  try {
+    if (!await save()) return;
+    hideMenu(); workspace.hidden = true; homePage.hidden = false;
+    toggle.hidden = true; document.querySelector('.navigation-divider').hidden = true; document.querySelector('.size-control').hidden = true;
+    homeButton.setAttribute('aria-current', 'page'); continueButton.focus();
+  } finally { returningHome = false; }
+});
+continueButton.addEventListener('click', () => {
+  homePage.hidden = true; workspace.hidden = false; toggle.hidden = false;
+  document.querySelector('.navigation-divider').hidden = false; document.querySelector('.size-control').hidden = false;
+  homeButton.removeAttribute('aria-current'); editor.focus({ preventScroll: true });
+  if (writingRange && editor.contains(writingRange.startContainer)) { const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(writingRange); }
 });
 slider.addEventListener('input', () => { applySize(); if (loaded) changed(); });
 window.addEventListener('resize', hideMenu);

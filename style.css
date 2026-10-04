@@ -53,3 +53,17 @@ button:focus-visible { outline: 2px solid #9b9476; outline-offset: 2px; }
 [hidden] { display: none !important; }
 @media (max-width: 760px) { .drawer-open #drawer { position: absolute; z-index: 5; width: 232px; height: 100%; background: #faf7ee; box-shadow: 8px 0 24px #413d3210; } }
 @media (prefers-reduced-motion: reduce) { #drawer { transition: none; } }
+.navigation-buttons { display: flex; align-items: center; gap: 8px; }
+.navigation-divider { height: 16px; width: 1px; background: #77704b20; margin: 0 2px; }
+.navigation-buttons .icon-button { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
+.icon-button svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.icon-button[aria-current=page] { background: #ded7bf65; }
+#home-page { position: relative; height: calc(100% - 72px); overflow-y: auto; display: grid; place-items: center; }
+.home-content { padding: 48px 24px 90px; text-align: center; }
+.home-logo { width: 96px; height: 96px; border-radius: 23px; object-fit: cover; }
+.home-content h1 { font-size: 24px; font-weight: 500; letter-spacing: 3px; margin: 28px 0 14px; }
+.home-content p { color: #948b74; font-size: 13px; letter-spacing: 2px; margin: 0 0 38px; }
+.continue-button { background: #e8e0c9; border: 1px solid #d9cfb5; border-radius: 9px; padding: 12px 26px; font-size: 13px; }
+.continue-button span { margin-left: 18px; color: #8d8266; }
+.continue-button:hover { background: #e0d6bb; }
+@media (max-width: 620px) { .navigation-buttons { gap: 2px; } .navigation-divider { margin: 0; } .app-name { font-size: 12px; } .save-state { max-width: 95px; overflow: hidden; text-overflow: ellipsis; } }

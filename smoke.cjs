@@ -28,7 +28,12 @@ app.on('browser-window-created', (_event, win) => {
         renderDraft({ text: '' }); editor.focus(); document.execCommand('selectAll'); document.execCommand('insertText', false, '第一段\\n第二段\\n\\n第四段'); normalize();
         if (snapshot().text !== '第一段\\n第二段\\n\\n第四段') throw new Error('Multiline plain text failed: ' + snapshot().text);
         renderDraft(draft); toggle.click();
-        return { persisted: true, migration: true, outline: true, navigation: true, drawer: true, enter: true };
+        const beforeHome = snapshot().text;
+        homeButton.click(); while (homePage.hidden) await new Promise(r => setTimeout(r, 20));
+        if (!workspace.hidden || !toggle.hidden) throw new Error('Home navigation failed');
+        continueButton.click();
+        if (workspace.hidden || !homePage.hidden || snapshot().text !== beforeHome || list.children.length !== 2) throw new Error('Continue writing failed');
+        return { persisted: true, migration: true, outline: true, navigation: true, drawer: true, enter: true, home: true };
       })()`);
       console.log(JSON.stringify(result));
       await require('node:fs/promises').writeFile(path.join(__dirname, '.smoke-data/result.json'), JSON.stringify(result));
