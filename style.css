@@ -22,3 +22,34 @@ textarea::placeholder { color: #a39b84; }
 textarea::selection { background: #dcd3ab; }
 input:focus-visible { outline: 2px solid #9b9476; outline-offset: 4px; border-radius: 8px; }
 @media (max-width: 620px) { .toolbar { padding: 0 22px; }.paper { padding: 40px 26px 90px; }.identity { gap: 8px; }input[type=range] { width: 72px; }.size-control { gap: 7px; } }
+.workspace { display: flex; height: calc(100% - 72px); position: relative; }
+.workspace .scroll-area { height: 100%; flex: 1; min-width: 0; }
+#drawer { flex: 0 0 0; width: 0; overflow: hidden; background: #faf7ee90; border-right: 0 solid #77704b1a; transition: flex-basis .22s ease; }
+.drawer-open #drawer { flex-basis: 232px; border-right-width: 1px; overflow-y: auto; }
+.drawer-title { padding: 32px 24px 20px; width: 232px; font-size: 12px; color: #8c8877; letter-spacing: 2px; }
+#chapter-list { width: 232px; padding: 0 12px; }
+#chapter-empty { width: 232px; padding: 0 24px; font-size: 12px; line-height: 1.9; color: #a29b89; }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+.icon-button { background: transparent; border: 0; border-radius: 6px; width: 28px; height: 28px; font-size: 17px; color: #85806d; }
+.icon-button:hover, .icon-button[aria-expanded=true] { background: #ded7bf65; }
+.chapter-entry { display: block; width: 100%; border: 0; background: transparent; text-align: left; padding: 10px 12px; border-radius: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.chapter-entry.section { padding-left: 28px; font-size: 12px; color: #89816c; }
+.chapter-entry:hover, .chapter-entry.active { background: #e6dfc665; }
+#editor { min-height: calc(100vh - 260px); outline: none; color: var(--ink); font-family: 'Times New Roman', 'SimSun', '宋体', serif; font-size: var(--font-size); line-height: 1.95; letter-spacing: .02em; caret-color: #676148; overflow-wrap: anywhere; white-space: pre-wrap; }
+#editor > div, #editor > p { min-height: 1.95em; margin: 0; scroll-margin-top: 40px; }
+#editor > [data-type=chapter] { font-size: 1.2em; font-weight: 600; margin-top: 1.2em; margin-bottom: .5em; }
+#editor > [data-type=section] { font-size: 1.07em; font-weight: 600; margin-top: .8em; margin-bottom: .3em; }
+#editor > :first-child { margin-top: 0; }
+#editor.empty::before { content: '从这里，写下故事的第一句话……'; position: absolute; color: #a39b84; pointer-events: none; }
+#editor ::selection { background: #dcd3ab; }
+.paragraph-button { position: absolute; height: 30px; width: 26px; background: #eee7d3; border: 1px solid #cfc6aa60; border-radius: 6px; color: #817961; font: 20px 'Segoe UI', sans-serif; }
+#paragraph-menu { position: fixed; z-index: 10; width: 200px; padding: 8px; background: #fffdf5; border: 1px solid #d8d1bf; border-radius: 10px; box-shadow: 0 8px 28px #413d321a; }
+.menu-title { display: block; padding: 4px 10px 8px; color: #9c9583; font-size: 11px; }
+#paragraph-menu button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 9px 10px; border: 0; border-radius: 5px; background: transparent; text-align: left; font-size: 13px; }
+#paragraph-menu button:hover, #paragraph-menu button:focus-visible { background: #f0ead8; outline: none; }
+#paragraph-menu button[aria-checked=true] { color: #756441; background: #f3eedf; }
+#paragraph-menu small { color: #a59d88; font-size: 10px; }
+button:focus-visible { outline: 2px solid #9b9476; outline-offset: 2px; }
+[hidden] { display: none !important; }
+@media (max-width: 760px) { .drawer-open #drawer { position: absolute; z-index: 5; width: 232px; height: 100%; background: #faf7ee; box-shadow: 8px 0 24px #413d3210; } }
+@media (prefers-reduced-motion: reduce) { #drawer { transition: none; } }

@@ -12,7 +12,11 @@ ipcMain.handle('draft:load', async () => {
 });
 ipcMain.handle('draft:save', async (_event, draft) => {
   if (typeof draft.text !== 'string' || !Number.isFinite(draft.fontSize)) throw new Error('Invalid draft');
-  const snapshot = JSON.stringify({ text: draft.text, fontSize: Math.min(36, Math.max(16, draft.fontSize)) });
+  const paragraphs = Array.isArray(draft.paragraphs) ? draft.paragraphs.map(p => {
+    if (!p || typeof p.text !== 'string' || !['body', 'chapter', 'section'].includes(p.type)) throw new Error('Invalid paragraph');
+    return { text: p.text, type: p.type };
+  }) : undefined;
+  const snapshot = JSON.stringify({ text: paragraphs ? paragraphs.map(p => p.text).join('\n') : draft.text, paragraphs, fontSize: Math.min(36, Math.max(16, draft.fontSize)) });
   const write = pendingWrite.catch(() => {}).then(async () => {
     await fs.mkdir(app.getPath('userData'), { recursive: true });
     await fs.writeFile(dataPath() + '.tmp', snapshot, 'utf8');

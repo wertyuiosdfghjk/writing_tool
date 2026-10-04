@@ -9,12 +9,16 @@
 </head>
 <body>
   <header class="toolbar">
-    <div class="identity"><span class="app-name">写作工具</span><span class="save-state" id="save-state" role="status">正在打开…</span></div>
+    <div class="identity"><button id="drawer-toggle" class="icon-button" aria-label="展开章节目录" aria-expanded="false" aria-controls="drawer">☰</button><span class="app-name">写作工具</span><span class="save-state" id="save-state" role="status">正在打开…</span></div>
     <label class="size-control" for="font-size"><span class="small-a" aria-hidden="true">A</span><input id="font-size" type="range" min="16" max="36" value="22" aria-label="正文字号"><span class="large-a" aria-hidden="true">A</span><output id="size-value" for="font-size">22</output></label>
   </header>
-  <main class="scroll-area" id="scroll-area">
-    <div class="paper"><textarea id="editor" aria-label="小说正文" placeholder="从这里，写下故事的第一句话……" spellcheck="false" disabled></textarea></div>
-  </main>
+  <div class="workspace">
+    <aside id="drawer" inert aria-label="章节目录"><div class="drawer-title">章节</div><nav id="chapter-list" aria-label="章节导航"></nav><p id="chapter-empty">将段落设为章标题或节标题，<br>它们就会出现在这里。</p></aside>
+    <main class="scroll-area" id="scroll-area">
+      <div class="paper"><div id="editor" role="textbox" aria-label="小说正文" aria-multiline="true" contenteditable="false" spellcheck="false"></div><button id="paragraph-button" class="paragraph-button" aria-label="设置段落类型" aria-expanded="false" title="设置段落类型" hidden>⋮</button></div>
+    </main>
+  </div>
+  <div id="paragraph-menu" role="menu" aria-label="段落类型" hidden><span class="menu-title">段落类型</span><button role="menuitemradio" data-type="chapter">章标题 <small>一级标题</small></button><button role="menuitemradio" data-type="section">节标题 <small>二级标题</small></button><button role="menuitemradio" data-type="body">正文</button></div>
   <script src="renderer.js"></script>
 </body>
 </html>
